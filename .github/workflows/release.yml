@@ -24,25 +24,21 @@ jobs:
             platform: js-web
             output: build/html5
             artifact: html5
-            zip: roids-html5.zip
 
           - id: macos
             platform: x86_64-macos
             output: build/macos
             artifact: macos
-            zip: roids-macos.zip
 
           - id: macos-silicon
             platform: arm64-macos
             output: build/macos-silicon
             artifact: macos-silicon
-            zip: roids-macos-silicon.zip
 
           - id: windows
             platform: x86_64-win32
             output: build/windows
             artifact: windows
-            zip: roids-windows.zip
     
     steps:
       - name: Checkout repository
@@ -72,6 +68,20 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.output }}
+
+      - name: Debug - TMP repository structure
+        run: |
+          echo "=== Workspace root ==="
+          pwd
+          ls -la
+
+          echo "=== Recursive listing ==="
+          find . -maxdepth 4 -type d
+
+      - name: Debug - Artifacts list
+        run: |
+          echo "Uploaded artifact path:"
+          ls -la ${{ matrix.output }}
 
   release:
     needs: build
@@ -107,6 +117,12 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: artifact
+
+      - name: Debug - Artifacts list
+        run: |
+          echo "Downloaded artifact path:"
+          ls -la artifact
+          find artifact -type d
 
       - name: ZIP ${{ matrix.id }} build
         run: |
