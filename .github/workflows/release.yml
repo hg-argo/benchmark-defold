@@ -65,7 +65,7 @@ jobs:
             --bundle-output ${{ matrix.output }}
 
       - name: Upload ${{ matrix.id }} artifact
-        uses: actions/upload-artifacts@v4
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.output }}
