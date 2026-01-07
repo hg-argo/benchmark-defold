@@ -58,7 +58,7 @@ jobs:
       - name: Download bob.jar
         run: |
           curl -L -o bob.jar \
-            https://github.com/defold/defold/releases/tag/${{ env.BOB_VERSION }}/bob.jar
+            https://github.com/defold/defold/releases/download/${{ env.BOB_VERSION }}/bob.jar
       
       - name: Resolve dependencies
         run: java -jar bob.jar resolve
