@@ -65,10 +65,7 @@ jobs:
 
       - name: Build ${{ matrix.id }}
         run: |
-          java -jar bob.jar build \
-            --platform ${{ matrix.platform }}
-            --archive \
-            --bundle-output ${{ matrix.output }}
+          java -jar bob.jar build --platform ${{ matrix.platform }} --archive --bundle-output ${{ matrix.output }}
 
       - name: Upload ${{ matrix.id }} artifact
         uses: actions/upload-artifact@v4
