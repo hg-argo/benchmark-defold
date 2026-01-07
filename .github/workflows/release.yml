@@ -9,7 +9,7 @@ on:
       - release
 
 env:
-  DEFOLD_VERSION: stable
+  BOB_VERSION: "1.11.2"
   JAVA_VERSION: "17"
 
 jobs:
@@ -32,6 +32,12 @@ jobs:
             artifact: macos
             zip: roids-macos.zip
 
+          - id: macos-silicon
+            platform: arm64-macos
+            output: build/macos-silicon
+            artifact: macos-silicon
+            zip: roids-macos-silicon.zip
+
           - id: windows
             platform: x86_64-win32
             output: build/windows
@@ -52,7 +58,7 @@ jobs:
       - name: Download bob.jar
         run: |
           curl -L -o bob.jar \
-            https://github.com/defold/defold/releases/download/${{ env.DEFOLD_VERSION }}/bob.jar
+            https://github.com/defold/defold/releases/tag/${{ env.BOB_VERSION }}/bob.jar
       
       - name: Resolve dependencies
         run: java -jar bob.jar resolve
@@ -89,12 +95,14 @@ jobs:
         run: |
           mv build/html5 build/html5 || true
           mv build/macos build/macos || true
+          mv build/macos-silicon build/macos-silicon || true
           mv build/wiindows build/wiindows || true
 
       - name: ZIP builds
         run: |
           cd build/html5 && zip -r ../../defold-html5.zip . && cd -
           cd build/macos && zip -r ../../defold-macos.zip . && cd -
+          cd build/macos-silicon && zip -r ../../defold-macos-silicon.zip . && cd -
           cd build/windows && zip -r ../../defold-windows.zip . && cd -
       
       - name: Create GitHub Release
@@ -105,6 +113,7 @@ jobs:
           files: |
             defold-html5.zip
             defold-macos.zip
+            defold-macos-silicon.zip
             defold-windows.zip
 
       # Deploy Web version to GitHub Pages
