@@ -53,18 +53,13 @@ jobs:
 
       - name: Build ${{ matrix.id }}
         run: |
-          java -jar bob.jar build --platform ${{ matrix.platform }} --archive --bundle-output build/${{ matrix.platform }}
+          java -jar bob.jar build --platform ${{ matrix.platform }} --archive --bundle-output build
 
       - name: Upload ${{ matrix.id }} artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: ${{ matrix.platform }}
-          path: build/${{ matrix.platform }}
-
-      - name: Debug - Build output
-        run: |
-          echo "Build directory content:"
-          find . -maxdepth 3 -type d
+          name: build/default
+          path: artifact/${{ matrix.platform }}
 
   release:
     needs: build
@@ -96,7 +91,7 @@ jobs:
     steps:
       # Create a Release entry
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ${{ matrix.platform }}
           path: artifact
