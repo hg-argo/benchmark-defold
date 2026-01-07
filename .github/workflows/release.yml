@@ -86,11 +86,12 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          path: build
+          name: ${{ matrix.artifact }}
+          path: artifact
 
       - name: ZIP ${{ matrix.id }} build
         run: |
-          cd build/${{ matrix.output }}
+          cd artifact/${{ matrix.output }}
           zip -r $GITHUB_WORKSPACE/${{ matrix.zip }} .
       
       - name: Create GitHub Release
