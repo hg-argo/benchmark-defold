@@ -64,7 +64,7 @@ jobs:
       - name: Debug - Build output
         run: |
           echo "Build directory content:"
-          find build -maxdepth 3 -type d
+          find . -maxdepth 3 -type d
 
   release:
     needs: build
