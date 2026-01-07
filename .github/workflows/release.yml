@@ -80,6 +80,26 @@ jobs:
       contents: write
       pages: write
       id-token: write
+    
+    strategy:
+      matrix:
+        include:
+          - id: web
+            artifact: html5
+            zip: defold-html5.zip
+            pages: true
+
+          - id: macos
+            artifact: macos
+            zip: defold-macos.zip
+
+          - id: macos-silicon
+            artifact: macos-silicon
+            zip: defold-macos-silicon.zip
+
+          - id: windows
+            artifact: windows
+            zip: defold-windows.zip
 
     steps:
       # Create a Release entry
@@ -87,11 +107,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: artifact
+          path: build
 
       - name: ZIP ${{ matrix.id }} build
         run: |
-          cd artifact/${{ matrix.output }}
+          cd build/${{ matrix.artifact }}
           zip -r $GITHUB_WORKSPACE/${{ matrix.zip }} .
       
       - name: Create GitHub Release
@@ -112,7 +132,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: pages/build/html5
+          path: build/html5
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
