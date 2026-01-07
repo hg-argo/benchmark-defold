@@ -1,0 +1,119 @@
+name: Build & release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - release
+
+env:
+  DEFOLD_VERSION: stable
+  JAVA_VERSION: "17"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: web
+            platform: js-web
+            output: build/html5
+            artifact: html5
+            zip: roids-html5.zip
+
+          - id: macos
+            platform: x86_64-macos
+            output: build/macos
+            artifact: macos
+            zip: roids-macos.zip
+
+          - id: windows
+            platform: x86_64-win32
+            output: build/windows
+            artifact: windows
+            zip: roids-windows.zip
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      
+      # Bob is the build tool provided by Defold: https://defold.com/manuals/bob
+      - name: Download bob.jar
+        run: |
+          curl -L -o bob.jar \
+            https://github.com/defold/defold/releases/download/${{ env.DEFOLD_VERSION }}/bob.jar
+      
+      - name: Resolve dependencies
+        run: java -jar bob.jar resolve
+
+      - name: Build ${{ matrix.id }}
+        run: |
+          java -jar bob.jar build \
+            --platform ${{ matrix.platform }}
+            --archive \
+            --bundle-output ${{ matrix.output }}
+
+      - name: Upload ${{ matrix.id }} artifact
+        uses: actions/upload-artifacts@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.output }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      # Create a Release entry
+      - name: Download build artifacts
+        uses: actions/download-artifacts@v4
+        with:
+          path: build
+
+      - name: Remap artifacts
+        run: |
+          mv build/html5 build/html5 || true
+          mv build/macos build/macos || true
+          mv build/wiindows build/wiindows || true
+
+      - name: ZIP builds
+        run: |
+          cd build/html5 && zip -r ../../defold-html5.zip . && cd -
+          cd build/macos && zip -r ../../defold-macos.zip . && cd -
+          cd build/windows && zip -r ../../defold-windows.zip . && cd -
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          files: |
+            defold-html5.zip
+            defold-macos.zip
+            defold-windows.zip
+
+      # Deploy Web version to GitHub Pages
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/html5
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
