@@ -22,23 +22,15 @@ jobs:
         include:
           - id: web
             platform: js-web
-            output: build/html5
-            artifact: html5
 
           - id: macos
             platform: x86_64-macos
-            output: build/macos
-            artifact: macos
 
           - id: macos-silicon
             platform: arm64-macos
-            output: build/macos-silicon
-            artifact: macos-silicon
 
           - id: windows
             platform: x86_64-win32
-            output: build/windows
-            artifact: windows
     
     steps:
       - name: Checkout repository
@@ -61,27 +53,18 @@ jobs:
 
       - name: Build ${{ matrix.id }}
         run: |
-          java -jar bob.jar build --platform ${{ matrix.platform }} --archive --bundle-output ${{ matrix.output }}
+          java -jar bob.jar build --platform ${{ matrix.platform }} --archive --bundle-output build
 
       - name: Upload ${{ matrix.id }} artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: ${{ matrix.output }}
+          name: ${{ matrix.platform }}
+          path: build/${{ matrix.platform }}
 
-      - name: Debug - TMP repository structure
+      - name: Debug - Build output
         run: |
-          echo "=== Workspace root ==="
-          pwd
-          ls -la
-
-          echo "=== Recursive listing ==="
-          find . -maxdepth 4 -type d
-
-      - name: Debug - Artifacts list
-        run: |
-          echo "Uploaded artifact path:"
-          ls -la ${{ matrix.output }}
+          echo "Build directory content:"
+          find build -maxdepth 3 -type d
 
   release:
     needs: build
@@ -95,38 +78,32 @@ jobs:
       matrix:
         include:
           - id: web
-            artifact: html5
-            zip: roids-html5.zip
+            platform: js-web
+            zip: roids-web.zip
 
           - id: macos
-            artifact: macos
-            zip: roids-macos.zip
+            platform: x86_64-macos
+            zip: roids-mac.zip
 
           - id: macos-silicon
-            artifact: macos-silicon
-            zip: roids-macos-silicon.zip
+            platform: arm64-macos
+            zip: roids-mac-silicon.zip
 
           - id: windows
-            artifact: windows
-            zip: roids-windows.zip
+            platform: x86_64-win32
+            zip: windows.zip
 
     steps:
       # Create a Release entry
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
+          name: ${{ matrix.platform }}
           path: artifact
-
-      - name: Debug - Artifacts list
-        run: |
-          echo "Downloaded artifact path:"
-          ls -la artifact
-          find artifact -type d
 
       - name: ZIP ${{ matrix.id }} build
         run: |
-          cd artifact/${{ matrix.artifact }}
+          cd artifact/${{ matrix.platform }}
           zip -r $GITHUB_WORKSPACE/${{ matrix.zip }} .
       
       - name: Create GitHub Release
