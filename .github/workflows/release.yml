@@ -86,20 +86,19 @@ jobs:
         include:
           - id: web
             artifact: html5
-            zip: defold-html5.zip
-            pages: true
+            zip: roids-html5.zip
 
           - id: macos
             artifact: macos
-            zip: defold-macos.zip
+            zip: roids-macos.zip
 
           - id: macos-silicon
             artifact: macos-silicon
-            zip: defold-macos-silicon.zip
+            zip: roids-macos-silicon.zip
 
           - id: windows
             artifact: windows
-            zip: defold-windows.zip
+            zip: roids-windows.zip
 
     steps:
       # Create a Release entry
@@ -107,11 +106,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: build
+          path: artifact
 
       - name: ZIP ${{ matrix.id }} build
         run: |
-          cd build/${{ matrix.artifact }}
+          cd artifact/${{ matrix.artifact }}
           zip -r $GITHUB_WORKSPACE/${{ matrix.zip }} .
       
       - name: Create GitHub Release
@@ -120,10 +119,10 @@ jobs:
           name: Release ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           files: |
-            defold-html5.zip
-            defold-macos.zip
-            defold-macos-silicon.zip
-            defold-windows.zip
+            roids-html5.zip
+            roids-macos.zip
+            roids-macos-silicon.zip
+            roids-windows.zip
 
       # Deploy Web version to GitHub Pages
       - name: Setup GitHub Pages
@@ -132,7 +131,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/html5
+          path: artifact/html5
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
