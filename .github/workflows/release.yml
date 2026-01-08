@@ -58,7 +58,7 @@ jobs:
       - name: Upload ${{ matrix.id }} artifact
         uses: actions/upload-artifact@v6
         with:
-          name: artifact/${{ matrix.platform }}
+          name: ${{ matrix.platform }}
           path: build/default
 
   release:

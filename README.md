@@ -13,7 +13,7 @@ This project is meant for evaluating the features and capabilities of the Defold
 
 We used this project to try the features of the engine, and check how we can deploy such project. Here is a list of the elements changed from the original project:
 
-- CI workflow to release the game for PC, Mac and Web
+- CI workflow to release the game for PC, Mac and Web (build works fine, not release yet)
 
 ## Side notes
 
